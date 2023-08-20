@@ -1,4 +1,4 @@
-# BlockMonster contracts
+# BlockMonster
 
 ## Commands
 
