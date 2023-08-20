@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import {Script} from "forge-std/Script.sol";
-import {MockNFT} from "../src/MockNFT.sol";
+import {ERC721MintManager} from "../src/ERC721MintManager.sol";
 
-contract MockNFTScript is Script {
-    MockNFT mockNftContract;
+contract ERC721MintManagerScript is Script {
+    ERC721MintManager mainContract;
 
     function setUp() public {}
 
@@ -13,7 +13,7 @@ contract MockNFTScript is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        mockNftContract = new MockNFT();
+        mainContract = new ERC721MintManager();
 
         vm.stopBroadcast();
     }
