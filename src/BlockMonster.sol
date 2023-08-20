@@ -33,7 +33,7 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
     mapping (uint256 => uint256) public tokenIdsMonsterType;
 
     /// EvolutionStone VARIABLES
-    IERC721A public immutable evolutionStoneContract;
+    IERC721A public immutable evolutionStone;
 
     /// ERC6551 VARIABLES
     address public immutable implementation;
@@ -62,7 +62,7 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
     ) ERC721A("BlockMonster", "BM") {
         implementation = _implementation;
         registry = IERC6551Registry(_registry);
-        evolutionStoneContract = IERC721A(_evolutionStone);
+        evolutionStone = IERC721A(_evolutionStone);
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
@@ -87,12 +87,14 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
     function mint(uint256 monsterTypeId, uint256 quantity) external {
         if (monsterTypeId > 4) revert InvalidMonsterType();
 
+        _mint(msg.sender, quantity);
+
         for (uint256 i = 0; i < quantity; i++) {
             uint256 tokenId = totalSupply() + i + 1;
             tokenIdsMonsterType[tokenId] = monsterTypeId;
-        }
 
-        _mint(msg.sender, quantity);
+            createAccount(tokenId);
+        }
     }
 
     function tokenURI(uint256 tokenId)
@@ -102,37 +104,55 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
         override(ERC721A)
         returns (string memory)
     {
-        string[] memory uriParts = new string[](4);
+        if (!_exists(tokenId)) revert ApprovalQueryForNonexistentToken();
 
+        address account = getAccount(tokenId);
+        uint256 balance = evolutionStone.balanceOf(account);
+
+        string[] memory uriParts = new string[](4);
         uriParts[0] = string("data:application/json;base64,");
+
+        string memory color;
+        string memory monsterType;
+
+        if (balance == 0) {
+            /// 進化していない場合
+            color = monsterTypes[tokenIdsMonsterType[tokenId]].color;
+            monsterType = monsterTypes[tokenIdsMonsterType[tokenId]].monsterType;
+        } else {
+            // 進化している場合
+            color = monsterTypes[9].color;
+            monsterType = monsterTypes[9].monsterType;
+        }
+
         uriParts[1] = string(
-                abi.encodePacked(
-                    '{"name":"BlockMonster #',
-                    tokenId.toString(),
-                    '",',
-                    '"description":" NFTs of monsters managed by ERC6551.",',
-                    '"attributes":[{"trait_type":"Type","value":"',
-                    monsterTypes[tokenIdsMonsterType[tokenId]].color,
-                    '"}],',
-                    '"image":"data:image/svg+xml;base64,'
-                )
-            );
+            abi.encodePacked(
+                '{"name":"BlockMonster #',
+                tokenId.toString(),
+                '",',
+                '"description":" NFTs of monsters managed by ERC6551.",',
+                '"attributes":[{"trait_type":"Type","value":"',
+                monsterType,
+                '"}],',
+                '"image":"data:image/svg+xml;base64,'
+            )
+        );
         uriParts[2] = Base64.encode(
-                abi.encodePacked(
-                    '<svg width="1000" height="1000" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">',
-                    '<rect width="1000" height="1000" fill="',
-                    monsterTypes[tokenIdsMonsterType[tokenId]].color,
-                    '"/>',
-                    '<text x="80" y="200" fill="white" font-family="Helvetica" font-size="120" font-weight="bold">BlockMonster</text>',
-                    '<text x="80" y="350" fill="white" font-family="Helvetica" font-size="60" font-weight="bold">ID: ',
-                    tokenId.toString(),
-                    '</text>',
-                    '<text x="80" y="450" fill="white" font-family="Helvetica" font-size="60" font-weight="bold">TYPE: ',
-                    monsterTypes[tokenIdsMonsterType[tokenId]].monsterType,
-                    '</text>',
-                    '</svg>'
-                )
-            );
+            abi.encodePacked(
+                '<svg width="1000" height="1000" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">',
+                '<rect width="1000" height="1000" fill="',
+                color,
+                '"/>',
+                '<text x="80" y="200" fill="white" font-family="Helvetica" font-size="120" font-weight="bold">BlockMonster</text>',
+                '<text x="80" y="350" fill="white" font-family="Helvetica" font-size="60" font-weight="bold">ID: ',
+                tokenId.toString(),
+                '</text>',
+                '<text x="80" y="450" fill="white" font-family="Helvetica" font-size="60" font-weight="bold">TYPE: ',
+                monsterType,
+                '</text>',
+                '</svg>'
+            )
+        );
         uriParts[3] = string('"}');
 
         string memory uri = string.concat(

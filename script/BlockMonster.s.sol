@@ -29,6 +29,7 @@ contract BlockMonsterScript is Script {
         mainContract.setMonsterType(7, "Psychic", "#F85888");
         mainContract.setMonsterType(8, "Fighting", "#C03028");
         mainContract.setMonsterType(9, "Poison", "#A040A0");
+        mainContract.setMonsterType(10, "Fairy", "#EE99AC");
 
         vm.stopBroadcast();
     }
