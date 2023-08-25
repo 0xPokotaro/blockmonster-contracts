@@ -13,10 +13,20 @@ import {IERC6551Registry} from "reference/interfaces/IERC6551Registry.sol";
 import {IERC721A} from "ERC721A/interfaces/IERC721A.sol";
 import {IBlockMonster} from "./interfaces/IBlockMonster.sol";
 
-/// @title BlockMonster
+library Uri {
+    function startTag() external pure returns (string memory) {
+        return '{';
+    }
+
+    function endTag() external pure returns (string memory) {
+        return '}';
+    }
+}
+
+/// @title StringMonster
 /// @author 0xpokotaro
 /// @notice NFTs of monsters managed by ERC6551.
-contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
+contract StringMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
     using Strings for uint256;
 
     /// NFT VARIABLES
@@ -59,7 +69,7 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
         address _implementation,
         address _registry,
         address _evolutionStone
-    ) ERC721A("BlockMonster", "BM") {
+    ) ERC721A("StringMonster", "SM") {
         implementation = _implementation;
         registry = IERC6551Registry(_registry);
         evolutionStone = IERC721A(_evolutionStone);
@@ -127,7 +137,7 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
 
         uriParts[1] = string(
             abi.encodePacked(
-                '{"name":"BlockMonster #',
+                '{"name":"StringMonster #',
                 tokenId.toString(),
                 '",',
                 '"description":" NFTs of monsters managed by ERC6551.",',

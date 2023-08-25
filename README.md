@@ -1,4 +1,4 @@
-# BlockMonster
+# StringMonster
 
 ## Commands
 
