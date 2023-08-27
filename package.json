@@ -1,9 +1,12 @@
 {
   "name": "blockmonster-contracts",
   "version": "1.0.0",
-  "author": "0xpokotaro",
-  "license": "MIT",
-  "dependencies": {
-    "base64-sol": "^1.1.0"
-  }
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
