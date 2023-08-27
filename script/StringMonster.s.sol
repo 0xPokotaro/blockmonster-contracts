@@ -20,16 +20,16 @@ contract StringMonsterScript is Script {
 
         mainContract = new StringMonster(implementation, registry, evolutionStone);
 
-        mainContract.setMonsterType(1, "Fire", "#F08030");
-        mainContract.setMonsterType(2, "Water", "#6890F0");
-        mainContract.setMonsterType(3, "Grass", "#78C850");
-        mainContract.setMonsterType(4, "Normal", "#A8A878");
-        mainContract.setMonsterType(5, "Electric", "#F8D030");
-        mainContract.setMonsterType(6, "Ice", "#98D8D8");
-        mainContract.setMonsterType(7, "Psychic", "#F85888");
-        mainContract.setMonsterType(8, "Fighting", "#C03028");
-        mainContract.setMonsterType(9, "Poison", "#A040A0");
-        mainContract.setMonsterType(10, "Fairy", "#EE99AC");
+        mainContract.setMonsterType(1, "Grass", "#4CAF50", "Forest", "#2E7D32");
+        mainContract.setMonsterType(2, "Fire", "#FF5722", "Inferno", "#D84315");
+        mainContract.setMonsterType(3, "Water", "#2196F3", "Ocean", "#1565C0");
+        mainContract.setMonsterType(4, "Earth", "#9E9E9E", "Mountain", "#616161");
+        mainContract.setMonsterType(5, "Wind", "#81D4FA", "Storm", "#29B6F6");
+        mainContract.setMonsterType(6, "Electric", "#FFEB3B", "Lightning", "#FBC02D");
+        mainContract.setMonsterType(7, "Ice", "#B3E5FC", "Glacier", "#81D4FA");
+        mainContract.setMonsterType(8, "Metal", "#B0BEC5", "Alloy", "#78909C");
+        mainContract.setMonsterType(9, "Dark", "#212121", "Abyss", "#000000");
+        mainContract.setMonsterType(10, "Light", "#FFF59D", "Radiance", "#FFEE58");
 
         vm.stopBroadcast();
     }

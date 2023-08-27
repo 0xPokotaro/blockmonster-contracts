@@ -14,12 +14,17 @@ import {IERC721A} from "ERC721A/interfaces/IERC721A.sol";
 import {IBlockMonster} from "./interfaces/IBlockMonster.sol";
 
 library Uri {
-    function name(string memory _name, string memory tokenId) external pure returns (string memory) {
+    function jsonBase64Header() external pure returns (string memory) {
+        return "data:application/json;base64,";
+    }
+
+    function name(string memory _name, string memory _tokenId) external pure returns (string memory) {
         return string(
             abi.encodePacked(
                 '"name":"',
                 _name,
-                tokenId,
+                " #",
+                _tokenId,
                 '",'
             )
         );
@@ -62,6 +67,16 @@ library Uri {
         return atts;
     }
 
+    function image(string memory _image) external pure returns (string memory) {
+        return string(
+            abi.encodePacked(
+                '"image":"data:image/svg+xml;base64,',
+                _image,
+                '"'
+            )
+        );
+    }
+
     function startTag() external pure returns (string memory) {
         return '{';
     }
@@ -71,19 +86,41 @@ library Uri {
     }
 
     function startSvg() external pure returns (string memory) {
-        return '<svg width="1000" height="1000" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">';
+        return '<svg width="500" height="500" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">';
     }
 
     function endSvg() external pure returns (string memory) {
         return '</svg>';
     }
 
-    function rect(string memory _color) external pure returns (string memory) {
+    function rect() external pure returns (string memory) {
         return string(
             abi.encodePacked(
-                '<rect width="1000" height="1000" fill="',
+                '<rect width="500" height="500" fill="white"/>'
+            )
+        );
+    }
+
+    function monster(string memory _monsterType, string memory _color) external pure returns (string memory) {
+        return string(
+            abi.encodePacked(
+                // title
+                '<text x="10" y="30" font-family="Verdana" font-size="24" font-weight="bold" fill="black">Monster</text>',
+                // attribute
+                '<text x="10" y="60" font-family="Verdana" font-size="16" fill="black">Attribute: ',
+                _monsterType,
+                '</text>',
+                // body
+                '<ellipse cx="250" cy="250" rx="150" ry="120" style="fill:',
                 _color,
-                '"/>'
+                ';" />',
+                // eyes
+                '<circle cx="210" cy="220" r="15" style="fill:white;" />',
+                '<circle cx="290" cy="220" r="15" style="fill:white;" />',
+                '<circle cx="210" cy="220" r="7.5" style="fill:black;" />',
+                '<circle cx="290" cy="220" r="7.5" style="fill:black;" />',
+                // mouth
+                '<rect x="235" y="280" rx="7.5" ry="7.5" width="22.5" height="7.5" style="fill:black;" />'
             )
         );
     }
@@ -95,14 +132,19 @@ library Uri {
 contract StringMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
     using Strings for uint256;
 
+    string public constant NAME = "StringMonster";
+
     /// NFT VARIABLES
     bytes32 public constant MINTER_ROLE = keccak256('MINTER_ROLE');
     uint256 public constant MAX_SUPPLY = 10000;
     uint256 public constant MAX_MINTABLE = 10;
 
+    // b: before evolution, a: after evolution
     struct MonsterType {
-        string monsterType;
-        string color;
+        string bType;
+        string bColor;
+        string aType;
+        string aColor;
     }
 
     mapping (uint256 => MonsterType) public monsterTypes;
@@ -116,7 +158,7 @@ contract StringMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
     IERC6551Registry public immutable registry;
     uint public immutable chainId = block.chainid;
     address public immutable tokenContract = address(this);
-    uint salt = 0;
+    uint public salt = 0;
 
     /// ===========================================
     /// Modifiers
@@ -150,10 +192,39 @@ contract StringMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
 
     function setMonsterType(
         uint256 monsterTypeId,
-        string memory monsterType,
-        string memory color
+        string memory bType,
+        string memory bColor,
+        string memory aType,
+        string memory aColor
     ) external onlyOwner {
-        monsterTypes[monsterTypeId] = MonsterType(monsterType, color);
+        monsterTypes[monsterTypeId] = MonsterType(bType, bColor, aType, aColor);
+    }
+
+    function getIsEvolution(uint256 _tokenId) public view returns (bool) {
+        address account = getAccount(_tokenId);
+        uint256 balance = evolutionStone.balanceOf(account);
+
+        return balance > 0;
+    }
+
+    function getMonsterType(uint256 _tokenId) public view returns (string memory) {
+        bool isEvolution = getIsEvolution(_tokenId);
+
+        if (isEvolution) {
+            return monsterTypes[tokenIdsMonsterType[_tokenId]].bType;
+        } else {
+            return monsterTypes[tokenIdsMonsterType[_tokenId]].aType;
+        }
+    }
+
+    function getMonsterColor(uint256 _tokenId) public view returns (string memory) {
+        bool isEvolution = getIsEvolution(_tokenId);
+
+        if (isEvolution) {
+            return monsterTypes[tokenIdsMonsterType[_tokenId]].bColor;
+        } else {
+            return monsterTypes[tokenIdsMonsterType[_tokenId]].aColor;
+        }
     }
 
     /// ===========================================
@@ -161,84 +232,40 @@ contract StringMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
     /// ===========================================
 
     function buildImage(uint256 _tokenId) public view returns (string memory) {
-        address account = getAccount(_tokenId);
-        uint256 balance = evolutionStone.balanceOf(account);
-
-        string memory color;
-        string memory monsterType;
-
-        if (balance == 0) {
-            /// 進化していない場合
-            color = monsterTypes[tokenIdsMonsterType[_tokenId]].color;
-            monsterType = monsterTypes[tokenIdsMonsterType[_tokenId]].monsterType;
-        } else {
-            // 進化している場合
-            color = monsterTypes[9].color;
-            monsterType = monsterTypes[9].monsterType;
-        }
+        string memory monsterType = getMonsterType(_tokenId);
+        string memory color = getMonsterColor(_tokenId);
 
         return Base64.encode(
             abi.encodePacked(
                 Uri.startSvg(),
-                Uri.rect(color),
-                '<text x="80" y="200" fill="white" font-family="Helvetica" font-size="120" font-weight="bold">StringMonster</text>',
-                '<text x="80" y="350" fill="white" font-family="Helvetica" font-size="60" font-weight="bold">ID: ',
-                _tokenId.toString(),
-                '</text>',
-                '<text x="80" y="450" fill="white" font-family="Helvetica" font-size="60" font-weight="bold">TYPE: ',
-                monsterType,
-                '</text>',
+                Uri.rect(),
+                Uri.monster(monsterType, color),
                 Uri.endSvg()
             )
         );
     }
 
     function buildMetadata(uint256 _tokenId) public view returns (string memory) {
-        address account = getAccount(_tokenId);
-        uint256 balance = evolutionStone.balanceOf(account);
-
-        string memory color;
-        string memory monsterType;
-
-        if (balance == 0) {
-            /// 進化していない場合
-            color = monsterTypes[tokenIdsMonsterType[_tokenId]].color;
-            monsterType = monsterTypes[tokenIdsMonsterType[_tokenId]].monsterType;
-        } else {
-            // 進化している場合
-            color = monsterTypes[9].color;
-            monsterType = monsterTypes[9].monsterType;
-        }
-
-        string[] memory uriParts = new string[](4);
-        uriParts[0] = string("data:application/json;base64,");
+        string memory monsterType = getMonsterType(_tokenId);
 
         string[] memory attributes = new string[](1);
         attributes[0] = Uri.attribute("Type", monsterType);
 
-        uriParts[1] = string(
-            abi.encodePacked(
-                Uri.startTag(),
-                Uri.name("StringMonster #", _tokenId.toString()),
-                Uri.description("NFTs of monsters managed by ERC6551."),
-                Uri.attributes(attributes),
-                '"image":"data:image/svg+xml;base64,'
-            )
-        );
-        uriParts[2] = buildImage(_tokenId);
-        uriParts[3] = string(abi.encodePacked(
-            '"',
-            Uri.endTag()
-        ));
+        string memory image = buildImage(_tokenId);
 
-        string memory uri = string.concat(
-            uriParts[0],
+        return string(abi.encodePacked(
+            Uri.jsonBase64Header(),
             Base64.encode(
-                abi.encodePacked(uriParts[1], uriParts[2], uriParts[3])
+                bytes(abi.encodePacked(
+                    Uri.startTag(),
+                    Uri.name(NAME, _tokenId.toString()),
+                    Uri.description("NFTs of monsters managed by ERC6551."),
+                    Uri.attributes(attributes),
+                    Uri.image(image),
+                    Uri.endTag()
+                ))
             )
-        );
-
-        return uri;
+        ));
     }
 
     /// ===========================================

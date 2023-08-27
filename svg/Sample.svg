@@ -1,0 +1,26 @@
+<svg width="500" height="500" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="500" fill="white" />
+
+  <!-- タイトル -->
+  <text x="10" y="30" font-family="Verdana" font-size="24" font-weight="bold" fill="black">Evolved Monster</text>
+
+  <!-- 属性 -->
+  <text x="10" y="60" font-family="Verdana" font-size="16" fill="black">Attribute: Fire</text>
+
+  <!-- 胴体 -->
+  <ellipse cx="250" cy="250" rx="150" ry="120" style="fill:green;" />
+
+  <!-- トゲ -->
+  <polygon points="250,100 270,150 230,150" style="fill:darkgreen;" />
+  <polygon points="175,175 195,225 155,225" style="fill:darkgreen;" />
+  <polygon points="325,175 345,225 305,225" style="fill:darkgreen;" />
+
+  <!-- 目 -->
+  <circle cx="210" cy="220" r="15" style="fill:white;" />
+  <circle cx="290" cy="220" r="15" style="fill:white;" />
+  <circle cx="210" cy="220" r="7.5" style="fill:black;" />
+  <circle cx="290" cy="220" r="7.5" style="fill:black;" />
+
+  <!-- 口 -->
+  <rect x="235" y="280" rx="7.5" ry="7.5" width="22.5" height="7.5" style="fill:black;" />
+</svg>
