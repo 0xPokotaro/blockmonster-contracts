@@ -1,14 +1,19 @@
 import type { ReactElement } from 'react'
-import { useEffect } from 'react'
-import { Box, Container, Unstable_Grid2 as Grid } from '@mui/material'
+import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
 import Moralis from 'moralis'
 import { EvmChain } from '@moralisweb3/common-evm-utils'
 import Layout from '@/components/Layout'
-import { MORALIS_API_KEY, BLOCK_MONSTER_TOKEN_ADDRESS } from '@/config/constants'
-import MintButton from '@/components/button/MintButton'
+import {
+  MORALIS_API_KEY,
+  BLOCK_MONSTER_TOKEN_ADDRESS,
+} from '@/config/constants'
+// MUI
+import { Breadcrumbs, Typography, Unstable_Grid2 as Grid } from '@mui/material'
 
 export default function Home() {
+  const [nfts, setNfts] = useState<any>()
+
   const { address } = useAccount()
 
   const runApp = async () => {
@@ -17,8 +22,6 @@ export default function Home() {
         apiKey: MORALIS_API_KEY,
       })
     }
-
-    console.log('Moralis is started:', BLOCK_MONSTER_TOKEN_ADDRESS)
 
     const address = BLOCK_MONSTER_TOKEN_ADDRESS
 
@@ -29,29 +32,35 @@ export default function Home() {
       chain,
     })
 
-    console.log(response.toJSON())
+    const json = response.toJSON()
+    const result = json.result
+
+    console.log(result)
+
+    setNfts(result)
   }
 
   useEffect(() => {
+    if (!address) return
     runApp()
-  }, [])
+  }, [address])
 
   return (
     <>
-      <Box>
-        <Container maxWidth="lg">
+      <Grid container spacing={2} sx={{ my: 2 }}>
+        <Grid xs={12}>
+          <Breadcrumbs aria-label="breadcrumb">
+            <Typography color="text.primary">HOME</Typography>
+          </Breadcrumbs>
+        </Grid>
+        {!address && (
           <Grid container spacing={2} sx={{ my: 2 }}>
             <Grid xs={12}>
-              <p>メッセージ</p>
-              <p>NFTを保有していません。</p>
-            </Grid>
-            <Grid xs={12}>
-              <p>アクション</p>
-              <MintButton />
+              <p>ウォレットを接続してください。</p>
             </Grid>
           </Grid>
-        </Container>
-      </Box>
+        )}
+      </Grid>
     </>
   )
 }
