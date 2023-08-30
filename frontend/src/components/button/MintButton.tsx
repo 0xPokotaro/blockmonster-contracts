@@ -1,5 +1,5 @@
 // wagmi
-import { useAccount, useContractWrite } from 'wagmi'
+import { useContractWrite } from 'wagmi'
 // MUI
 import { Button } from '@mui/material'
 // Config

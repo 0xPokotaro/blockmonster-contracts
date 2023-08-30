@@ -1,20 +1,49 @@
+// TYPES
 import type { ReactElement } from 'react'
+// REACT
 import { useEffect, useState } from 'react'
-import { useAccount } from 'wagmi'
+// WAGMI
+import { useAccount, useContractWrite } from 'wagmi'
+// ABI
+import { BlockMonsterAbi } from '@/config/abis/BlockMonsterAbi'
 import Moralis from 'moralis'
 import { EvmChain } from '@moralisweb3/common-evm-utils'
 import Layout from '@/components/Layout'
+import NftCard from '@/components/card/NftCard'
 import {
   MORALIS_API_KEY,
   BLOCK_MONSTER_TOKEN_ADDRESS,
 } from '@/config/constants'
 // MUI
-import { Breadcrumbs, Typography, Unstable_Grid2 as Grid } from '@mui/material'
+import {
+  Breadcrumbs,
+  Button,
+  Typography,
+  Unstable_Grid2 as Grid,
+} from '@mui/material'
+// HOOKS
+import useDialog from '@/hooks/useDialog'
+// COMPONENTS
+import MonsterMintDialog from '@/components/dialog/MonstarMintDialog'
+
+export interface Nft {}
 
 export default function Home() {
-  const [nfts, setNfts] = useState<any>()
+  const [nfts, setNfts] = useState<Nft[]>([])
 
+  // WAGMI
   const { address } = useAccount()
+  const { data, isLoading, isSuccess, write } = useContractWrite({
+    address: BLOCK_MONSTER_TOKEN_ADDRESS,
+    abi: BlockMonsterAbi,
+    functionName: 'mint',
+  })
+  // DIALOG
+  const {
+    isOpen: isMonsterMintDialog,
+    handleOpen: openMonsterMintDialog,
+    handleClose: closeMonsterMintDialog,
+  } = useDialog()
 
   const runApp = async () => {
     if (!Moralis.Core.isStarted) {
@@ -37,12 +66,13 @@ export default function Home() {
 
     console.log(result)
 
-    setNfts(result)
+    // setNfts(result)
   }
 
   useEffect(() => {
     if (!address) return
-    runApp()
+    // runApp()
+    setNfts([1, 2, 3])
   }, [address])
 
   return (
@@ -53,13 +83,30 @@ export default function Home() {
             <Typography color="text.primary">HOME</Typography>
           </Breadcrumbs>
         </Grid>
-        {!address && (
-          <Grid container spacing={2} sx={{ my: 2 }}>
-            <Grid xs={12}>
-              <p>ウォレットを接続してください。</p>
+        <Grid xs={12}>
+          <Button
+            variant="contained"
+            disableElevation
+            sx={{ mr: 1 }}
+            onClick={openMonsterMintDialog}
+          >
+            MONSTER MINT
+          </Button>
+          <MonsterMintDialog
+            isOpen={isMonsterMintDialog}
+            handleClose={closeMonsterMintDialog}
+          />
+          <Button variant="contained" disableElevation>
+            STONE MINT
+          </Button>
+        </Grid>
+        {nfts.map((nft: any) => {
+          return (
+            <Grid key={nft} xs={3}>
+              <NftCard />
             </Grid>
-          </Grid>
-        )}
+          )
+        })}
       </Grid>
     </>
   )
