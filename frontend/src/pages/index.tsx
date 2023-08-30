@@ -3,9 +3,8 @@ import type { ReactElement } from 'react'
 // REACT
 import { useEffect, useState } from 'react'
 // WAGMI
-import { useAccount, useContractWrite } from 'wagmi'
+import { useAccount } from 'wagmi'
 // ABI
-import { BlockMonsterAbi } from '@/config/abis/BlockMonsterAbi'
 import Moralis from 'moralis'
 import { EvmChain } from '@moralisweb3/common-evm-utils'
 import Layout from '@/components/Layout'
@@ -21,10 +20,12 @@ import {
   Typography,
   Unstable_Grid2 as Grid,
 } from '@mui/material'
+import RefreshIcon from '@mui/icons-material/Refresh'
 // HOOKS
 import useDialog from '@/hooks/useDialog'
 // COMPONENTS
 import MonsterMintDialog from '@/components/dialog/MonstarMintDialog'
+import StoneMintDialog from '@/components/dialog/StoneMintDialog'
 
 export interface Nft {}
 
@@ -33,17 +34,21 @@ export default function Home() {
 
   // WAGMI
   const { address } = useAccount()
-  const { data, isLoading, isSuccess, write } = useContractWrite({
-    address: BLOCK_MONSTER_TOKEN_ADDRESS,
-    abi: BlockMonsterAbi,
-    functionName: 'mint',
-  })
   // DIALOG
   const {
     isOpen: isMonsterMintDialog,
     handleOpen: openMonsterMintDialog,
     handleClose: closeMonsterMintDialog,
   } = useDialog()
+  const {
+    isOpen: isStoneMintDialog,
+    handleOpen: openStoneMintDialog,
+    handleClose: closeStoneMintDialog,
+  } = useDialog()
+
+  const handleRefresh = () => {
+    runApp()
+  }
 
   const runApp = async () => {
     if (!Moralis.Core.isStarted) {
@@ -52,26 +57,40 @@ export default function Home() {
       })
     }
 
-    const address = BLOCK_MONSTER_TOKEN_ADDRESS
-
-    const chain = EvmChain.SEPOLIA
-
     const response = await Moralis.EvmApi.nft.getNFTOwners({
-      address,
-      chain,
+      address: BLOCK_MONSTER_TOKEN_ADDRESS,
+      chain: EvmChain.SEPOLIA,
     })
 
     const json = response.toJSON()
     const result = json.result
 
-    console.log(result)
+    if (!result || result.length === 0) return
 
-    // setNfts(result)
+    const nfts = result
+      .filter((nft: any) => {
+        const metadata = JSON.parse(nft.metadata)
+        return !!metadata
+      })
+      .map((nft: any): any => {
+        const metadata = JSON.parse(nft.metadata)
+
+        return {
+          name: metadata.name,
+          image: metadata.image,
+          tokenId: nft.token_id,
+          tokenAddress: nft.token_address,
+          ownerOf: nft.owner_of,
+        }
+      })
+
+    console.log(nfts)
+    setNfts(nfts)
   }
 
   useEffect(() => {
     if (!address) return
-    // runApp()
+    runApp()
     setNfts([1, 2, 3])
   }, [address])
 
@@ -96,14 +115,30 @@ export default function Home() {
             isOpen={isMonsterMintDialog}
             handleClose={closeMonsterMintDialog}
           />
-          <Button variant="contained" disableElevation>
+          <Button
+            variant="contained"
+            disableElevation
+            sx={{ mr: 1 }}
+            onClick={openStoneMintDialog}
+          >
             STONE MINT
           </Button>
+          <StoneMintDialog
+            isOpen={isStoneMintDialog}
+            handleClose={closeStoneMintDialog}
+          />
+          <Button
+            variant="outlined"
+            endIcon={<RefreshIcon />}
+            onClick={handleRefresh}
+          >
+            REFRESH
+          </Button>
         </Grid>
-        {nfts.map((nft: any) => {
+        {nfts.map((nft: any, index: any) => {
           return (
-            <Grid key={nft} xs={3}>
-              <NftCard />
+            <Grid key={index} xs={4}>
+              {nft.tokenId && <NftCard nft={nft} />}
             </Grid>
           )
         })}

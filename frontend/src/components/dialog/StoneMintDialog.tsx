@@ -5,8 +5,11 @@ import { ReactElement, Ref, forwardRef, useEffect, useState } from 'react'
 // WAGMI
 import { useContractWrite } from 'wagmi'
 // CONFIG
-import { BlockMonsterAbi } from '@/config/abis/BlockMonsterAbi'
-import { EXPLORER_URL, BLOCK_MONSTER_TOKEN_ADDRESS } from '@/config/constants'
+import { EvolutionStoneAbi } from '@/config/abis/EvolutionStoneAbi'
+import {
+  EXPLORER_URL,
+  EVOLUTION_MONSTER_TOKEN_ADDRESS,
+} from '@/config/constants'
 // MUI
 import {
   Alert,
@@ -17,17 +20,12 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  MenuItem,
-  Select,
   Slide,
 } from '@mui/material'
 // REACT HOOK FORM
-import { Controller, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 
-interface MonstarMintDialogProps {
+interface StoneMintDialogProps {
   isOpen: boolean
   handleClose: () => void
 }
@@ -45,27 +43,27 @@ const Transition = forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />
 })
 
-const MonstarMintDialog = (props: MonstarMintDialogProps) => {
+const StoneMintDialog = (props: StoneMintDialogProps) => {
   const { isOpen, handleClose } = props
 
   const [hash, setHash] = useState<string>('')
 
-  const { control, handleSubmit, reset } = useForm<Form>({})
+  const { handleSubmit, reset } = useForm<Form>({})
   const {
     data: tx,
     isLoading,
     isSuccess,
     write,
   } = useContractWrite({
-    address: BLOCK_MONSTER_TOKEN_ADDRESS,
-    abi: BlockMonsterAbi,
+    address: EVOLUTION_MONSTER_TOKEN_ADDRESS,
+    abi: EvolutionStoneAbi,
     functionName: 'mint',
   })
 
   const submit = async (data: any) => {
     try {
       const quantity = 1
-      write({ args: [data.monsterType, quantity] })
+      write({ args: [quantity] })
     } catch (error) {
       console.log(error)
     }
@@ -96,7 +94,7 @@ const MonstarMintDialog = (props: MonstarMintDialogProps) => {
       fullWidth
       maxWidth="sm"
     >
-      <DialogTitle>Monstar mint</DialogTitle>
+      <DialogTitle>Evolution stone mint</DialogTitle>
       {hash && (
         <DialogContent sx={{ pb: 0 }}>
           <Alert
@@ -111,51 +109,8 @@ const MonstarMintDialog = (props: MonstarMintDialogProps) => {
       <Box component="form" onSubmit={handleSubmit(submit)}>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
-            Please select a monster type and press the mint button.
+            Please press the mint button.
           </DialogContentText>
-          <Box>
-            <Controller
-              name="monsterType"
-              control={control}
-              rules={{
-                validate: (form) => {
-                  if (!form) {
-                    return 'Not selected.'
-                  }
-                },
-              }}
-              defaultValue={0}
-              render={({ field, formState: { errors } }) => (
-                <FormControl
-                  fullWidth
-                  error={errors.monsterType ? true : false}
-                >
-                  <InputLabel id="select-label">select</InputLabel>
-                  <Select
-                    labelId="select-label"
-                    id="select"
-                    label="Select"
-                    {...field}
-                  >
-                    <MenuItem value={0}>未選択</MenuItem>
-                    <MenuItem value={1}>Grass</MenuItem>
-                    <MenuItem value={2}>Fire</MenuItem>
-                    <MenuItem value={3}>Earth</MenuItem>
-                    <MenuItem value={4}>Water</MenuItem>
-                    <MenuItem value={5}>Wind</MenuItem>
-                    <MenuItem value={6}>Electric</MenuItem>
-                    <MenuItem value={7}>Ice</MenuItem>
-                    <MenuItem value={8}>Metal</MenuItem>
-                    <MenuItem value={9}>Dark</MenuItem>
-                    <MenuItem value={12}>Light</MenuItem>
-                  </Select>
-                  <FormHelperText>
-                    {errors.monsterType?.message || ''}
-                  </FormHelperText>
-                </FormControl>
-              )}
-            />
-          </Box>
         </DialogContent>
         <DialogActions>
           <Button
@@ -180,4 +135,4 @@ const MonstarMintDialog = (props: MonstarMintDialogProps) => {
   )
 }
 
-export default MonstarMintDialog
+export default StoneMintDialog
