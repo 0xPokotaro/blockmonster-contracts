@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {Script} from "forge-std/Script.sol";
-import {ERC6551Implementation} from "../src/ERC6551Implementation.sol";
+import {ERC6551Implementation} from "../src/blockMonster/ERC6551Implementation.sol";
 
 contract ERC6551ImplementationScript is Script {
     ERC6551Implementation mainContract;

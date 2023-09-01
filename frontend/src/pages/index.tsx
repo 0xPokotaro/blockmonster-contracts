@@ -1,16 +1,10 @@
 // TYPES
 import type { ReactElement } from 'react'
 // REACT
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 // WAGMI
 import { useAccount } from 'wagmi'
-// ABI
-import Moralis from 'moralis'
-import { EvmChain } from '@moralisweb3/common-evm-utils'
-import Layout from '@/components/Layout'
-import NftCard from '@/components/card/NftCard'
 import {
-  MORALIS_API_KEY,
   BLOCK_MONSTER_TOKEN_ADDRESS,
 } from '@/config/constants'
 // MUI
@@ -23,15 +17,14 @@ import {
 import RefreshIcon from '@mui/icons-material/Refresh'
 // HOOKS
 import useDialog from '@/hooks/useDialog'
+import useMoralis from '@/hooks/useMoralis'
 // COMPONENTS
+import Layout from '@/components/Layout'
+import NftCard from '@/components/card/NftCard'
 import MonsterMintDialog from '@/components/dialog/MonstarMintDialog'
 import StoneMintDialog from '@/components/dialog/StoneMintDialog'
 
-export interface Nft {}
-
 export default function Home() {
-  const [nfts, setNfts] = useState<Nft[]>([])
-
   // WAGMI
   const { address } = useAccount()
   // DIALOG
@@ -45,53 +38,18 @@ export default function Home() {
     handleOpen: openStoneMintDialog,
     handleClose: closeStoneMintDialog,
   } = useDialog()
+  // MORALIS
+  const { nfts, getNFTOwners } = useMoralis(
+    BLOCK_MONSTER_TOKEN_ADDRESS
+  )
 
   const handleRefresh = () => {
-    runApp()
-  }
-
-  const runApp = async () => {
-    if (!Moralis.Core.isStarted) {
-      await Moralis.start({
-        apiKey: MORALIS_API_KEY,
-      })
-    }
-
-    const response = await Moralis.EvmApi.nft.getNFTOwners({
-      address: BLOCK_MONSTER_TOKEN_ADDRESS,
-      chain: EvmChain.SEPOLIA,
-    })
-
-    const json = response.toJSON()
-    const result = json.result
-
-    if (!result || result.length === 0) return
-
-    const nfts = result
-      .filter((nft: any) => {
-        const metadata = JSON.parse(nft.metadata)
-        return !!metadata
-      })
-      .map((nft: any): any => {
-        const metadata = JSON.parse(nft.metadata)
-
-        return {
-          name: metadata.name,
-          image: metadata.image,
-          tokenId: nft.token_id,
-          tokenAddress: nft.token_address,
-          ownerOf: nft.owner_of,
-        }
-      })
-
-    console.log(nfts)
-    setNfts(nfts)
+    getNFTOwners()
   }
 
   useEffect(() => {
     if (!address) return
-    runApp()
-    setNfts([1, 2, 3])
+    getNFTOwners()
   }, [address])
 
   return (
