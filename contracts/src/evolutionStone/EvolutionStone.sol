@@ -100,7 +100,7 @@ contract EvolutionStone is AccessControl, Ownable, ERC721A {
     /// ERC721A functions
     /// ===========================================
 
-    function mint(address _to, uint256 _quantity) external onlyMinter {
+    function mint(address _to, uint256 _quantity) external {
         if (totalSupply() + _quantity > MAX_SUPPLY) revert ExceedsMaxSupply();
 
         _mint(_to, _quantity);

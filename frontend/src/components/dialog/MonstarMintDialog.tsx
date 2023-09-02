@@ -5,8 +5,8 @@ import { ReactElement, Ref, forwardRef, useEffect, useState } from 'react'
 // WAGMI
 import { useAccount, useContractWrite } from 'wagmi'
 // CONFIG
-import { BlockMonsterAbi } from '@/config/abis/BlockMonsterAbi'
-import { EXPLORER_URL, BLOCK_MONSTER_TOKEN_ADDRESS } from '@/config/constants'
+import { BmMintManagerAbi } from '@/config/abis/BmMintManagerAbi'
+import { EXPLORER_URL, BLOCK_MONSTER_TOKEN_ADDRESS, BM_MINT_MANAGER } from '@/config/constants'
 // MUI
 import {
   Alert,
@@ -60,23 +60,34 @@ const MonstarMintDialog = (props: MonstarMintDialogProps) => {
     isSuccess,
     write,
   } = useContractWrite({
-    address: BLOCK_MONSTER_TOKEN_ADDRESS,
-    abi: BlockMonsterAbi,
+    address: BM_MINT_MANAGER,
+    abi: BmMintManagerAbi,
     functionName: 'mint',
   })
 
   const submit = async (data: any) => {
     try {
       const quantity = 1
-      // write({ args: [data.monsterType, quantity] })
+      write({ args: [BLOCK_MONSTER_TOKEN_ADDRESS, quantity] })
 
-      const provider = new ethers.providers.AlchemyProvider('maticmum', 'SU5ApLPB1TrjGPzjJChmsL0XVXVykZqC')
-      const wallet = new ethers.Wallet('488ad0afad7573facfd7f98c4601bb6deadaadfeeac8ac0ab5784dca71dcb393')
-      const signer = wallet.connect(provider);
-      const contract = new ethers.Contract(BLOCK_MONSTER_TOKEN_ADDRESS, BlockMonsterAbi, signer);
+      /*
+      const provider = new ethers.providers.AlchemyProvider(
+        'maticmum',
+        'SU5ApLPB1TrjGPzjJChmsL0XVXVykZqC'
+      )
+      const wallet = new ethers.Wallet(
+        '488ad0afad7573facfd7f98c4601bb6deadaadfeeac8ac0ab5784dca71dcb393'
+      )
+      const signer = wallet.connect(provider)
+      const contract = new ethers.Contract(
+        BLOCK_MONSTER_TOKEN_ADDRESS,
+        BlockMonsterAbi,
+        signer
+      )
 
-      const tx = await contract.mint(data.monsterType, quantity);
-      console.log(tx);
+      const tx = await contract.mint(data.monsterType, quantity)
+      console.log(tx)
+      */
       /*
       const network = 'mumbai';
       const provider = new ethers.providers.AlchemyProvider(network, 'SU5ApLPB1TrjGPzjJChmsL0XVXVykZqC')

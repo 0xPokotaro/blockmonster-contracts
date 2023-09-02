@@ -6,6 +6,9 @@ export const BLOCK_MONSTER_TOKEN_ADDRESS = process.env
 export const EVOLUTION_MONSTER_TOKEN_ADDRESS = process.env
   .NEXT_PUBLIC_EVOLUTION_STONE_TOKEN_ADDRESS as `0x${string}`
 
+export const BM_MINT_MANAGER = process.env
+  .NEXT_PUBLIC_BM_MINT_MANAGER_ADDRESS as `0x${string}`
+
 export const APP_NAME = 'BlockMonster'
 
 export const APP_DESCRIPTION =

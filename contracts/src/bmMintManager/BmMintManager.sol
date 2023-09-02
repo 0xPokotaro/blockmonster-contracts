@@ -31,16 +31,20 @@ contract BmMintManager is IBmMintManager {
     /// ===========================================
 
     function setMintableToken(
-        address tokenAddress,
-        uint256 price,
-        address treasury
+        address _tokenAddress,
+        uint256 _price,
+        address _treasury
     ) external {
-        MintableNft token = MintableNft(tokenAddress);
+        MintableNft token = MintableNft(_tokenAddress);
         if (token.owner() != msg.sender) revert Unauthorized();
 
-        mintableTokens[tokenAddress].price = price;
-        mintableTokens[tokenAddress].treasury = treasury;
-        mintableTokens[tokenAddress].isActive = IS_ACTIVE;
+        MintableToken memory mintableToken = MintableToken(
+            _price,
+            _treasury,
+            IS_ACTIVE
+        );
+
+        mintableTokens[_tokenAddress] = mintableToken;
     }
 
     /// ===========================================
@@ -53,7 +57,7 @@ contract BmMintManager is IBmMintManager {
     )
         external
     {
-        if (mintableTokens[tokenAddress].isActive != IS_ACTIVE) revert NotBulkMintableToken();
+        // if (mintableTokens[tokenAddress].isActive != IS_ACTIVE) revert NotBulkMintableToken();
 
         MintableNft token = MintableNft(tokenAddress);
         token.mint(msg.sender, quantity);
@@ -66,7 +70,7 @@ contract BmMintManager is IBmMintManager {
         external
         payable
     {
-        if (mintableTokens[tokenAddress].isActive != IS_ACTIVE) revert NotBulkMintableToken();
+        // if (mintableTokens[tokenAddress].isActive != IS_ACTIVE) revert NotBulkMintableToken();
         if (msg.value < mintableTokens[tokenAddress].price * quantity) revert InsufficientFunds();
 
         MintableNft token = MintableNft(tokenAddress);

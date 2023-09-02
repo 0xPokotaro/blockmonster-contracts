@@ -205,18 +205,21 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
     /// ERC721A functions
     /// ===========================================
 
-    function mint(address _to, uint256 _quantity) external onlyMinter {
+    function mint(address _to, uint256 _quantity) external {
         if (totalSupply() + _quantity > MAX_SUPPLY) revert ExceedsMaxSupply();
 
         uint256 currentTokenId = totalSupply();
-        uint256 randomMonsterTypeId = _randomMonsterType(1);
+        uint256 randomMonsterTypeId = 1;
         for (uint256 i = 0; i < _quantity; i++) {
             currentTokenId++;
+            if (randomMonsterTypeId > 3) {
+                randomMonsterTypeId = 1;
+            } else {
+                randomMonsterTypeId++;
+            }
             tokenIdsMonsterType[currentTokenId] = randomMonsterTypeId;
 
             createAccount(currentTokenId);
-
-            randomMonsterTypeId = _randomMonsterType(randomMonsterTypeId);
         }
 
         _mint(_to, _quantity);
@@ -278,17 +281,5 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
         return
             AccessControl.supportsInterface(interfaceId) ||
             ERC721A.supportsInterface(interfaceId);
-    }
-
-    /// ===========================================
-    /// Internal functions
-    /// ===========================================
-
-    function _randomMonsterType(uint256 monsterTypeId) internal pure returns (uint256) {
-        if (monsterTypeId > 3) {
-            return 1;
-        }
-
-        return monsterTypeId++;
     }
 }

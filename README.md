@@ -12,7 +12,7 @@
 
 |Name|Network|Contract address|
 |:---|:---|:---|
-|BlockMonster|Polygon Mumbai|[0xD92eC269169EE9979894C552e63CC405C6A2b80B](https://mumbai.polygonscan.com/address/0xD92eC269169EE9979894C552e63CC405C6A2b80B#code)|
+|BlockMonster|Polygon Mumbai|[0x841027979546217223F25EC88137F16ab071522f](https://mumbai.polygonscan.com/address/0x841027979546217223F25EC88137F16ab071522f#code)|
 |ERC6551Registry|Polygon Mumbai|[0x42735056E2173C1f4eA24d8753169724FC1685Ab](https://mumbai.polygonscan.com/address/0x42735056E2173C1f4eA24d8753169724FC1685Ab#code)|
 |ERC6551Implementation|Polygon Mumbai|[0xC1Af53a83Af5feB946F1C7ca4a90d2C16D0D9c8c](https://mumbai.polygonscan.com/address/0xC1Af53a83Af5feB946F1C7ca4a90d2C16D0D9c8c#code)|
 
@@ -26,7 +26,7 @@
 
 |Name|Network|Contract address|
 |:---|:---|:---|
-|BmMintManager|Polygon Mumbai|[0x0ceAe4CfE021540D13829bb9573891BB0E9E8Ca2](https://mumbai.polygonscan.com/address/0x0ceAe4CfE021540D13829bb9573891BB0E9E8Ca2#code)|
+|BmMintManager|Polygon Mumbai|[0x5bb31bB5d1053b780671Eb0188D85b142f614E50](https://mumbai.polygonscan.com/address/0x5bb31bB5d1053b780671Eb0188D85b142f614E50#code)|
 
 ## 🛰️ Getting Started
 
@@ -69,7 +69,7 @@ forge script \
   --verify \
   -vvvv
 
-# ERC6551Implementation
+# BMMintableManager
 forge script \
   script/deploy/bmMintManager/BmMintManager.s.sol:BmMintManagerScript \
   --rpc-url https://polygon-mumbai.g.alchemy.com/v2/SU5ApLPB1TrjGPzjJChmsL0XVXVykZqC \
