@@ -11,4 +11,4 @@ export const APP_NAME = 'BlockMonster'
 export const APP_DESCRIPTION =
   'BlockMonster is a decentralized application built on Polygon.'
 
-export const EXPLORER_URL = 'https://sepolia.etherscan.io/tx/'
+export const EXPLORER_URL = 'https://mumbai.polygonscan.com/tx/'

@@ -15,7 +15,19 @@ interface IBlockMonster {
     /// Functions
     /// ===========================================
 
-    // function mint(address to, uint256 quantity) external;
+    function setMonsterType(
+        uint256 monsterTypeId,
+        string memory bType,
+        string memory bColor,
+        string memory aType,
+        string memory aColor
+    ) external;
+    function getIsEvolution(uint256 _tokenId) external view returns (bool);
+    function getMonsterType(uint256 _tokenId) external view returns (string memory);
+    function getMonsterColor(uint256 _tokenId) external view returns (string memory);
+    function buildImage(uint256 _tokenId) external view returns (string memory);
+    function buildMetadata(uint256 _tokenId) external view returns (string memory);
+    function mint(uint256 monsterTypeId, uint256 quantity) external;
     function getAccount(uint tokenId) external view returns (address);
     function createAccount(uint tokenId) external returns (address);
 }

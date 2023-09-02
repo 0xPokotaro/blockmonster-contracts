@@ -112,4 +112,19 @@ library Uri {
             )
         );
     }
+
+    function stone(string memory _title, string memory _tokenId) external pure returns (string memory) {
+       return string(
+            abi.encodePacked(
+                // title
+                '<text x="10" y="30" font-family="Verdana" font-size="24" font-weight="bold" fill="black">',
+                _title,
+                '</text>',
+                // attribute
+                '<text x="10" y="60" font-family="Verdana" font-size="16" fill="black"># ',
+                _tokenId,
+                '</text>'
+            )
+        );
+    }
 }

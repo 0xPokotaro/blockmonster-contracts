@@ -3,9 +3,9 @@ import type { AppProps } from 'next/app'
 import type { NextPage } from 'next'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { configureChains, createConfig, WagmiConfig } from 'wagmi'
-import { sepolia } from 'wagmi/chains'
+
+import { polygonMumbai } from 'wagmi/chains'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
-import { publicProvider } from 'wagmi/providers/public'
 import { APP_NAME } from '@/config/constants'
 
 import '@rainbow-me/rainbowkit/styles.css'
@@ -18,11 +18,11 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout
 }
 
-const ALCHEMY_ID = 'vs46Ws8Pg5sD4tyAdm3tYj7IA0pB35b3'
+const ALCHEMY_ID = 'SU5ApLPB1TrjGPzjJChmsL0XVXVykZqC'
 
 const { chains, publicClient } = configureChains(
-  [sepolia],
-  [alchemyProvider({ apiKey: ALCHEMY_ID }), publicProvider()]
+  [polygonMumbai],
+  [alchemyProvider({ apiKey: ALCHEMY_ID })]
 )
 
 const { connectors } = getDefaultWallets({

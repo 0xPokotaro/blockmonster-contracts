@@ -15,6 +15,7 @@ import {IERC721A} from "ERC721A/interfaces/IERC721A.sol";
 import {IBlockMonster} from "../interfaces/IBlockMonster.sol";
 
 /*
+
 ██████╗ ██╗      ██████╗  ██████╗██╗  ██╗
 ██╔══██╗██║     ██╔═══██╗██╔════╝██║ ██╔╝
 ██████╔╝██║     ██║   ██║██║     █████╔╝
@@ -28,7 +29,8 @@ import {IBlockMonster} from "../interfaces/IBlockMonster.sol";
 ██║ ╚═╝ ██║╚██████╔╝██║ ╚████║███████║   ██║   ███████╗██║  ██║
 ╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
 
-▷ Built full on-chain with ERC721A and ERC6551.
+==> Built full on-chain with ERC721A and ERC6551.
+
 */
 
 /// @title BlockMonster
@@ -42,7 +44,6 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
     /// NFT VARIABLES
     bytes32 public constant MINTER_ROLE = keccak256('MINTER_ROLE');
     uint256 public constant MAX_SUPPLY = 10000;
-    uint256 public constant MAX_MINTABLE = 10;
 
     // b: before evolution, a: after evolution
     struct MonsterType {
@@ -82,7 +83,7 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
         address _implementation,
         address _registry,
         address _evolutionStone
-    ) ERC721A("StringMonster", "SM") {
+    ) ERC721A(NAME, "BM") {
         implementation = _implementation;
         registry = IERC6551Registry(_registry);
         evolutionStone = IERC721A(_evolutionStone);
@@ -95,6 +96,15 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
     /// BlockMonster functions
     /// ===========================================
 
+    /**
+     * @dev Set a new Monster Type.
+     *
+     * @param monsterTypeId Unique identifier for the monster type.
+     * @param bType The type of the monster before evolution.
+     * @param bColor The color of the monster before evolution.
+     * @param aType The type of the monster after evolution.
+     * @param aColor The color of the monster after evolution.
+     */
     function setMonsterType(
         uint256 monsterTypeId,
         string memory bType,
@@ -105,6 +115,12 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
         monsterTypes[monsterTypeId] = MonsterType(bType, bColor, aType, aColor);
     }
 
+    /**
+     * @dev Check if a monster with the given tokenId has evolved.
+     *
+     * @param _tokenId Unique identifier for the monster.
+     * @return True if the monster has evolved, false otherwise.
+     */
     function getIsEvolution(uint256 _tokenId) public view returns (bool) {
         address account = getAccount(_tokenId);
         uint256 balance = evolutionStone.balanceOf(account);
@@ -112,6 +128,12 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
         return balance > 0;
     }
 
+    /**
+     * @dev Retrieve the type of a monster based on its evolution status.
+     *
+     * @param _tokenId Unique identifier for the monster.
+     * @return The type of the monster.
+     */
     function getMonsterType(uint256 _tokenId) public view returns (string memory) {
         bool isEvolution = getIsEvolution(_tokenId);
 
@@ -122,6 +144,12 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
         }
     }
 
+    /**
+     * @dev Retrieve the color of a monster based on its evolution status.
+     *
+     * @param _tokenId Unique identifier for the monster.
+     * @return The color of the monster.
+     */
     function getMonsterColor(uint256 _tokenId) public view returns (string memory) {
         bool isEvolution = getIsEvolution(_tokenId);
 
@@ -178,7 +206,10 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
     /// ===========================================
 
     function mint(uint256 monsterTypeId, uint256 quantity) external {
-        if (monsterTypeId > 4) revert InvalidMonsterType();
+        if (totalSupply() + quantity > MAX_SUPPLY) revert ExceedsMaxSupply();
+
+        MonsterType memory monsterType = monsterTypes[monsterTypeId];
+        if (bytes(monsterType.bType).length == 0) revert InvalidMonsterType();
 
         for (uint256 i = 0; i < quantity; i++) {
             uint256 tokenId = totalSupply() + 1;
@@ -247,8 +278,4 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
             AccessControl.supportsInterface(interfaceId) ||
             ERC721A.supportsInterface(interfaceId);
     }
-
-    /// ===========================================
-    /// Internal functions
-    /// ===========================================
 }

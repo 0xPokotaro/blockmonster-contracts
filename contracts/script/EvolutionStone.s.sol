@@ -16,6 +16,8 @@ contract EvolutionStoneScript is Script {
 
         mainContract = new EvolutionStone();
 
+        mainContract.mint(10);
+
         vm.stopBroadcast();
     }
 }

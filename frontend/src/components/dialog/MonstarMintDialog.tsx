@@ -3,7 +3,7 @@ import type { TransitionProps } from '@mui/material/transitions'
 // REACT
 import { ReactElement, Ref, forwardRef, useEffect, useState } from 'react'
 // WAGMI
-import { useContractWrite } from 'wagmi'
+import { useAccount, useContractWrite } from 'wagmi'
 // CONFIG
 import { BlockMonsterAbi } from '@/config/abis/BlockMonsterAbi'
 import { EXPLORER_URL, BLOCK_MONSTER_TOKEN_ADDRESS } from '@/config/constants'
@@ -26,6 +26,8 @@ import {
 } from '@mui/material'
 // REACT HOOK FORM
 import { Controller, useForm } from 'react-hook-form'
+import { ethers } from 'ethers'
+import { Network, Alchemy, Wallet, ContractFactory } from 'alchemy-sdk'
 
 interface MonstarMintDialogProps {
   isOpen: boolean
@@ -51,6 +53,7 @@ const MonstarMintDialog = (props: MonstarMintDialogProps) => {
   const [hash, setHash] = useState<string>('')
 
   const { control, handleSubmit, reset } = useForm<Form>({})
+  const { address } = useAccount()
   const {
     data: tx,
     isLoading,
@@ -65,7 +68,25 @@ const MonstarMintDialog = (props: MonstarMintDialogProps) => {
   const submit = async (data: any) => {
     try {
       const quantity = 1
-      write({ args: [data.monsterType, quantity] })
+      // write({ args: [data.monsterType, quantity] })
+
+      const provider = new ethers.providers.AlchemyProvider('maticmum', 'SU5ApLPB1TrjGPzjJChmsL0XVXVykZqC')
+      const wallet = new ethers.Wallet('488ad0afad7573facfd7f98c4601bb6deadaadfeeac8ac0ab5784dca71dcb393')
+      const signer = wallet.connect(provider);
+      const contract = new ethers.Contract(BLOCK_MONSTER_TOKEN_ADDRESS, BlockMonsterAbi, signer);
+
+      const tx = await contract.mint(data.monsterType, quantity);
+      console.log(tx);
+      /*
+      const network = 'mumbai';
+      const provider = new ethers.providers.AlchemyProvider(network, 'SU5ApLPB1TrjGPzjJChmsL0XVXVykZqC')
+      console.log('provider: ', provider)
+      const signer = provider.getSigner();
+
+      const contract = new ethers.Contract(BLOCK_MONSTER_TOKEN_ADDRESS, BlockMonsterAbi, signer);
+      const tx = await contract.mint(data.monsterType, quantity);
+      console.log(tx);
+      */
     } catch (error) {
       console.log(error)
     }

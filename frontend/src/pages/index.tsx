@@ -4,13 +4,13 @@ import type { ReactElement } from 'react'
 import { useEffect } from 'react'
 // WAGMI
 import { useAccount } from 'wagmi'
-import {
-  BLOCK_MONSTER_TOKEN_ADDRESS,
-} from '@/config/constants'
+import { BLOCK_MONSTER_TOKEN_ADDRESS } from '@/config/constants'
 // MUI
 import {
   Breadcrumbs,
   Button,
+  Card,
+  CardContent,
   Typography,
   Unstable_Grid2 as Grid,
 } from '@mui/material'
@@ -23,6 +23,8 @@ import Layout from '@/components/Layout'
 import NftCard from '@/components/card/NftCard'
 import MonsterMintDialog from '@/components/dialog/MonstarMintDialog'
 import StoneMintDialog from '@/components/dialog/StoneMintDialog'
+import BMBalanceCard from '@/components/card/BMBalanceCard'
+import ESBalanceCard from '@/components/card/ESBalanceCard'
 
 export default function Home() {
   // WAGMI
@@ -39,9 +41,7 @@ export default function Home() {
     handleClose: closeStoneMintDialog,
   } = useDialog()
   // MORALIS
-  const { nfts, getNFTOwners } = useMoralis(
-    BLOCK_MONSTER_TOKEN_ADDRESS
-  )
+  const { nfts, getNFTOwners } = useMoralis(BLOCK_MONSTER_TOKEN_ADDRESS)
 
   const handleRefresh = () => {
     getNFTOwners()
@@ -54,11 +54,17 @@ export default function Home() {
 
   return (
     <>
-      <Grid container spacing={2} sx={{ my: 2 }}>
+      <Grid container spacing={2} sx={{ my: 3 }}>
         <Grid xs={12}>
           <Breadcrumbs aria-label="breadcrumb">
             <Typography color="text.primary">HOME</Typography>
           </Breadcrumbs>
+        </Grid>
+        <Grid xs={4}>
+          <BMBalanceCard />
+        </Grid>
+        <Grid xs={4}>
+          <ESBalanceCard />
         </Grid>
         <Grid xs={12}>
           <Button

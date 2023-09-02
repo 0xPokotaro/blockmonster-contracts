@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useContractRead } from 'wagmi'
-import { Button, Card, CardActions, CardContent, CardMedia, Typography } from '@mui/material'
+import {
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardMedia,
+  Typography,
+} from '@mui/material'
 // CONFIG
 import { BlockMonsterAbi } from '@/config/abis/BlockMonsterAbi'
 import { BLOCK_MONSTER_TOKEN_ADDRESS } from '@/config/constants'
@@ -18,15 +25,15 @@ const NftCard = (props: NftCardProps) => {
     address: BLOCK_MONSTER_TOKEN_ADDRESS,
     abi: BlockMonsterAbi,
     functionName: 'tokenURI',
-    args: [nft.tokenId]
+    args: [nft.tokenId],
   })
 
   useEffect(() => {
     if (isSuccess) {
       // @ts-ignore
-      const base64Content = data.split(",")[1];
-      const decodedString = atob(base64Content);
-      const jsonObject = JSON.parse(decodedString);
+      const base64Content = data.split(',')[1]
+      const decodedString = atob(base64Content)
+      const jsonObject = JSON.parse(decodedString)
 
       setImage(jsonObject.image)
     }
