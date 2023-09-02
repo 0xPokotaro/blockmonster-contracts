@@ -117,13 +117,16 @@ library Uri {
        return string(
             abi.encodePacked(
                 // title
-                '<text x="10" y="30" font-family="Verdana" font-size="24" font-weight="bold" fill="black">',
+                '<text x="25" y="80" font-family="Verdana" font-size="45" font-weight="bold" fill="black">',
                 _title,
                 '</text>',
                 // attribute
-                '<text x="10" y="60" font-family="Verdana" font-size="16" fill="black"># ',
+                '<text x="25" y="120" font-family="Verdana" font-size="16" fill="black"># ',
                 _tokenId,
-                '</text>'
+                '</text>',
+                '<polygon points="250,200 300,300 200,300" fill="blue"/>',
+                '<polygon points="300,300 250,400 200,300" fill="darkblue"/>',
+                '<polygon points="250,200 300,300 250,400 200,300" stroke="black" stroke-width="3" fill="none"/>'
             )
         );
     }
