@@ -71,7 +71,7 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
     /// ===========================================
 
     modifier onlyMinter() {
-        if (hasRole(MINTER_ROLE, msg.sender)) revert Unauthorized();
+        if (!hasRole(MINTER_ROLE, msg.sender)) revert Unauthorized();
         _;
     }
 
@@ -205,20 +205,21 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
     /// ERC721A functions
     /// ===========================================
 
-    function mint(uint256 monsterTypeId, uint256 quantity) external {
-        if (totalSupply() + quantity > MAX_SUPPLY) revert ExceedsMaxSupply();
+    function mint(address _to, uint256 _quantity) external onlyMinter {
+        if (totalSupply() + _quantity > MAX_SUPPLY) revert ExceedsMaxSupply();
 
-        MonsterType memory monsterType = monsterTypes[monsterTypeId];
-        if (bytes(monsterType.bType).length == 0) revert InvalidMonsterType();
+        uint256 currentTokenId = totalSupply();
+        uint256 randomMonsterTypeId = _randomMonsterType(1);
+        for (uint256 i = 0; i < _quantity; i++) {
+            currentTokenId++;
+            tokenIdsMonsterType[currentTokenId] = randomMonsterTypeId;
 
-        for (uint256 i = 0; i < quantity; i++) {
-            uint256 tokenId = totalSupply() + 1;
-            tokenIdsMonsterType[tokenId] = monsterTypeId;
+            createAccount(currentTokenId);
 
-            createAccount(tokenId);
+            randomMonsterTypeId = _randomMonsterType(randomMonsterTypeId);
         }
 
-        _mint(msg.sender, quantity);
+        _mint(_to, _quantity);
     }
 
     function tokenURI(uint256 tokenId)
@@ -277,5 +278,17 @@ contract BlockMonster is AccessControl, Ownable, ERC721A, IBlockMonster {
         return
             AccessControl.supportsInterface(interfaceId) ||
             ERC721A.supportsInterface(interfaceId);
+    }
+
+    /// ===========================================
+    /// Internal functions
+    /// ===========================================
+
+    function _randomMonsterType(uint256 monsterTypeId) internal pure returns (uint256) {
+        if (monsterTypeId > 3) {
+            return 1;
+        }
+
+        return monsterTypeId++;
     }
 }

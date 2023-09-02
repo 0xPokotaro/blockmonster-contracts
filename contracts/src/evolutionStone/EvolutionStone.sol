@@ -8,7 +8,7 @@ import {ERC721A} from "ERC721A/ERC721A.sol";
 /// UTILS
 import {Base64} from "base64-sol/base64.sol";
 import {Strings} from "openzeppelin-contracts/utils/Strings.sol";
-import {Uri} from "./lib/Uri.sol";
+import {Uri} from "../lib/Uri.sol";
 
 /*
 
@@ -47,7 +47,7 @@ contract EvolutionStone is AccessControl, Ownable, ERC721A {
     /// ===========================================
 
     modifier onlyMinter() {
-        if (hasRole(MINTER_ROLE, msg.sender)) revert Unauthorized();
+        if (!hasRole(MINTER_ROLE, msg.sender)) revert Unauthorized();
         _;
     }
 
@@ -100,10 +100,10 @@ contract EvolutionStone is AccessControl, Ownable, ERC721A {
     /// ERC721A functions
     /// ===========================================
 
-    function mint(uint256 quantity) external {
-        if (totalSupply() + quantity > MAX_SUPPLY) revert ExceedsMaxSupply();
+    function mint(address _to, uint256 _quantity) external onlyMinter {
+        if (totalSupply() + _quantity > MAX_SUPPLY) revert ExceedsMaxSupply();
 
-        _mint(msg.sender, quantity);
+        _mint(_to, _quantity);
     }
 
     function tokenURI(uint256 tokenId)

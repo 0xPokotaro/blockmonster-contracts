@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import {console2} from "forge-std/console2.sol";
 import {Script} from "forge-std/Script.sol";
-import {BlockMonster} from "../../src/blockMonster/BlockMonster.sol";
+import {BlockMonster} from "../../../src/blockMonster/BlockMonster.sol";
 
 contract BlockMonsterScript is Script {
     BlockMonster mainContract;
@@ -23,18 +23,6 @@ contract BlockMonsterScript is Script {
         mainContract.setMonsterType(1, "Grass", "#4CAF50", "Forest", "#2E7D32");
         mainContract.setMonsterType(2, "Fire", "#FF5722", "Inferno", "#D84315");
         mainContract.setMonsterType(3, "Water", "#2196F3", "Ocean", "#1565C0");
-
-        mainContract.mint(1, 1);
-        mainContract.mint(1, 1);
-        mainContract.mint(1, 1);
-
-        mainContract.mint(2, 1);
-        mainContract.mint(2, 1);
-        mainContract.mint(2, 1);
-
-        mainContract.mint(3, 1);
-        mainContract.mint(3, 1);
-        mainContract.mint(3, 1);
 
         vm.stopBroadcast();
     }

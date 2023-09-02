@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import {console2} from "forge-std/console2.sol";
 import {Script} from "forge-std/Script.sol";
-import {ERC6551Implementation} from "../../src/blockMonster/ERC6551Implementation.sol";
+import {EvolutionStone} from "../../../src/evolutionStone//EvolutionStone.sol";
 
-contract ERC6551ImplementationScript is Script {
-    ERC6551Implementation mainContract;
+contract EvolutionStoneScript is Script {
+    EvolutionStone mainContract;
 
     function setUp() public {}
 
@@ -13,7 +14,7 @@ contract ERC6551ImplementationScript is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        mainContract = new ERC6551Implementation();
+        mainContract = new EvolutionStone();
 
         vm.stopBroadcast();
     }

@@ -3,10 +3,11 @@ pragma solidity ^0.8.19;
 
 import {console2} from "forge-std/console2.sol";
 import {Test} from "forge-std/Test.sol";
-import {EvolutionStone} from "../src/EvolutionStone.sol";
+import {EvolutionStone} from "../src/evolutionStone/EvolutionStone.sol";
 import {ERC6551Implementation} from "../src/blockMonster/ERC6551Implementation.sol";
 import {ERC6551Registry} from "../src/blockMonster/ERC6551Registry.sol";
 import {BlockMonster} from "../src/blockMonster/BlockMonster.sol";
+import {BmMintManager} from "../src/bmMintManager/BmMintManager.sol";
 
 contract BlockMonsterTest is Test {
     EvolutionStone public evolutionStoneContract;
@@ -15,13 +16,18 @@ contract BlockMonsterTest is Test {
     ERC6551Registry public registryContract;
     BlockMonster public mainContract;
 
+    BmMintManager public mintManagerContract;
+
     address owner = address(0x34A1D3fff3958843C43aD80F30b94c510645C316);
+    address treasury = address(0x34A1D3fff3958843C43aD80F30b94c510645C316);
     address alice = address(0x1889);
     address bob = address(0x1778);
 
     function setUp() public {
-        vm.startPrank(owner);
+        vm.prank(owner);
         evolutionStoneContract = new EvolutionStone();
+
+        mintManagerContract = new BmMintManager();
 
         registryContract = new ERC6551Registry();
         implementContract = new ERC6551Implementation();
@@ -38,19 +44,17 @@ contract BlockMonsterTest is Test {
         mainContract.setMonsterType(9, "Dark", "#212121", "Abyss", "#000000");
         mainContract.setMonsterType(10, "Light", "#FFF59D", "Radiance", "#FFEE58");
 
-        mainContract.mint(1, 1);
-        evolutionStoneContract.mint(1);
+        mainContract.grantRole(mainContract.MINTER_ROLE(), address(mintManagerContract));
+        evolutionStoneContract.grantRole(evolutionStoneContract.MINTER_ROLE(), address(mintManagerContract));
+
+        mintManagerContract.setMintableToken(address(mainContract), 100, address(treasury));
+        mintManagerContract.setMintableToken(address(evolutionStoneContract), 100, address(treasury));
+
+        mintManagerContract.mint(address(mainContract), 1);
+        mintManagerContract.mint(address(evolutionStoneContract), 1);
 
         evolutionStoneContract.approve(address(mainContract), 1);
         evolutionStoneContract.transferFrom(owner, mainContract.getAccount(1), 1);
-         vm.stopPrank();
-    }
-
-    function debug() public {
-        // uint256 randomNum = stringMonsterContract.randonNum(361, block.prevrandao, 100);
-        // console2.log(randomNum);
-        // console2.log(stringMonsterContract.tokenURI(1));
-        // assertEq(stringMonsterContract.name(), "StringMonster");
     }
 
     function test_SetMonsterType() public {
@@ -70,7 +74,6 @@ contract BlockMonsterTest is Test {
         assertEq(aColor, newAColor);
     }
 
-    /*
     function testFail_SetMonsterType() public {
         uint256 newMonsterType = 11;
         string memory newBType = "Hoge";
@@ -79,15 +82,14 @@ contract BlockMonsterTest is Test {
         string memory newAColor = "#000000";
 
         vm.prank(address(0));
-        vm.expectRevert("Ownable: caller is not the owner");
         mainContract.setMonsterType(newMonsterType, newBType, newBColor, newAType, newAColor);
+        vm.expectRevert("Ownable: caller is not the owner");
     }
-    */
 
     function test_GetIsEvolution() public {
         assertEq(mainContract.getIsEvolution(1), true);
 
-        mainContract.mint(1, 1);
+        mintManagerContract.mint(address(mainContract), 1);
         assertEq(mainContract.getIsEvolution(2), false);
     }
 
@@ -99,5 +101,23 @@ contract BlockMonsterTest is Test {
     function test_GetMonsterColor() public {
         uint256 tokneId = 1;
         assertEq(mainContract.getMonsterColor(tokneId), "#4CAF50");
+    }
+
+    function test_mint() public {
+        uint256 quantity = 2;
+
+        vm.startPrank(alice);
+        mintManagerContract.mint(address(mainContract), quantity);
+        vm.stopPrank();
+
+        assertEq(mainContract.balanceOf(alice), quantity);
+        assertEq(mainContract.ownerOf(2), alice);
+        assertEq(mainContract.ownerOf(3), alice);
+
+        (string memory bType, string memory bColor, string memory aType, string memory aColor) = mainContract.monsterTypes(3);
+        assertEq(bType, "Water");
+        assertEq(bColor, "#2196F3");
+        assertEq(aType, "Ocean");
+        assertEq(aColor, "#1565C0");
     }
 }

@@ -2,10 +2,10 @@
 pragma solidity ^0.8.20;
 
 import {Script} from "forge-std/Script.sol";
-import {ERC721MintManager} from "../src/ERC721MintManager.sol";
+import {ERC6551Implementation} from "../../../src/blockMonster/ERC6551Implementation.sol";
 
-contract ERC721MintManagerScript is Script {
-    ERC721MintManager mainContract;
+contract ERC6551ImplementationScript is Script {
+    ERC6551Implementation mainContract;
 
     function setUp() public {}
 
@@ -13,7 +13,7 @@ contract ERC721MintManagerScript is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        mainContract = new ERC721MintManager();
+        mainContract = new ERC6551Implementation();
 
         vm.stopBroadcast();
     }

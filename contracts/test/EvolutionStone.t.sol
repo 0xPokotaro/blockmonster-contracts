@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import {console2} from "forge-std/console2.sol";
 import {Test} from "forge-std/Test.sol";
-import {EvolutionStone} from "../src/EvolutionStone.sol";
+import {EvolutionStone} from "../src/evolutionStone/EvolutionStone.sol";
 import {ERC6551Implementation} from "../src/blockMonster/ERC6551Implementation.sol";
 import {ERC6551Registry} from "../src/blockMonster/ERC6551Registry.sol";
 import {BlockMonster} from "../src/blockMonster/BlockMonster.sol";
@@ -18,8 +18,6 @@ contract EvolutionStoneTest is Test {
     function setUp() public {
         vm.startPrank(owner);
         mainContract = new EvolutionStone();
-
-        mainContract.mint(1);
 
         vm.stopPrank();
     }
